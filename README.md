@@ -1,8 +1,12 @@
 # Category Clash
 
-**A fast-paced trivia quiz game built with vanilla JavaScript.** Pick a category, race a 15-second timer per question, and walk away with a ticket-stub scorecard rating your run.
+**A fast-paced trivia quiz game built with vanilla JavaScript.** Pick a category, race a timed countdown per question, and walk away with a scored results screen.
 
-[Live Demo](#) · [Report Bug](https://github.com/Arpithaapoojary/category-clash/issues) · [Request Feature](https://github.com/Arpithaapoojary/category-clash/issues)
+[Live Demo](https://category-clash-quiz.vercel.app/) · [Report Bug](https://github.com/Arpithaapoojary/category-clash/issues) · [Request Feature](https://github.com/Arpithaapoojary/category-clash/issues)
+
+<p align="center">
+  <img src="./screenshot.png" alt="Category Clash quiz interface showing a question, timer ring, and answer options" width="600" />
+</p>
 
 ---
 
@@ -117,12 +121,6 @@ This is a static site, so it can be deployed anywhere that serves static files:
 ## Credits
 
 Questions provided by the [Open Trivia Database](https://opentdb.com), a free, community-maintained trivia API.
-
----
-
-## License
-
-Distributed under the MIT License.
 
 ---
 
