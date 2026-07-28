@@ -1,1 +1,511 @@
-# category-clash
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Category Clash — Trivia Challenge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f4f5f9;
+    --surface: #ffffff;
+    --border: #e4e6ee;
+    --ink: #171a2e;
+    --ink-dim: #6b7086;
+    --primary: #4640de;
+    --primary-dim: #eeedfd;
+    --success: #0f9d78;
+    --success-bg: #e6f6f0;
+    --danger: #d3453b;
+    --danger-bg: #fbe9e8;
+    --gold: #b8860b;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--bg);
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 40px 40px;
+    background-position: -1px -1px;
+    font-family: 'Inter', sans-serif;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 20px;
+  }
+
+  .stage { width: 100%; max-width: 520px; }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 22px;
+  }
+  .brand .mark {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .brand .dot {
+    width: 10px; height: 10px;
+    border-radius: 3px;
+    background: var(--primary);
+  }
+  .brand h1 {
+    font-family: 'Sora', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: -0.2px;
+  }
+  .brand .tag {
+    font-size: 12px;
+    color: var(--ink-dim);
+    font-weight: 500;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 1px 2px rgba(23,26,46,0.04), 0 12px 32px rgba(23,26,46,0.06);
+  }
+
+  h2.title {
+    font-family: 'Sora', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    margin: 0 0 4px;
+    letter-spacing: -0.3px;
+  }
+  p.subtitle {
+    color: var(--ink-dim);
+    font-size: 14px;
+    margin: 0 0 26px;
+  }
+
+  .field { margin-bottom: 22px; }
+  .field label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+    margin-bottom: 10px;
+  }
+  .chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    color: var(--ink);
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.14s ease;
+  }
+  .chip:hover { border-color: var(--primary); }
+  .chip.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+  }
+
+  .btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 10px;
+    border: none;
+    font-family: 'Sora', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    cursor: pointer;
+    background: var(--primary);
+    color: #fff;
+    margin-top: 6px;
+    transition: opacity 0.14s ease, transform 0.1s ease;
+  }
+  .btn:hover { opacity: 0.92; }
+  .btn:active { transform: translateY(1px); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn:focus-visible { outline: 3px solid var(--primary-dim); outline-offset: 2px; }
+  .btn.ghost {
+    background: transparent;
+    color: var(--primary);
+    border: 1.5px solid var(--border);
+  }
+
+  /* QUIZ SCREEN */
+  .quiz-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+  .meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-dim);
+  }
+  .meta strong { color: var(--ink); }
+
+  .timer-ring { position: relative; width: 44px; height: 44px; }
+  .timer-ring svg { transform: rotate(-90deg); }
+  .timer-ring circle {
+    fill: none;
+    stroke-width: 4;
+  }
+  .timer-ring .bg { stroke: var(--border); }
+  .timer-ring .fg { stroke: var(--primary); stroke-linecap: round; transition: stroke-dashoffset 1s linear, stroke 0.3s ease; }
+  .timer-ring .num {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; font-weight: 700;
+  }
+
+  .question {
+    font-family: 'Sora', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.5;
+    margin-bottom: 22px;
+    letter-spacing: -0.1px;
+  }
+  .answers { display: grid; gap: 10px; }
+  .answer {
+    text-align: left;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    color: var(--ink);
+    padding: 13px 16px;
+    border-radius: 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.14s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .answer .letter {
+    width: 22px; height: 22px;
+    border-radius: 6px;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: var(--ink-dim);
+    flex-shrink: 0;
+  }
+  .answer:hover:not(:disabled) { border-color: var(--primary); }
+  .answer:focus-visible { outline: 3px solid var(--primary-dim); outline-offset: 2px; }
+  .answer.correct { background: var(--success-bg); border-color: var(--success); color: var(--success); }
+  .answer.correct .letter { background: var(--success); border-color: var(--success); color: #fff; }
+  .answer.wrong { background: var(--danger-bg); border-color: var(--danger); color: var(--danger); }
+  .answer.wrong .letter { background: var(--danger); border-color: var(--danger); color: #fff; }
+  .answer:disabled { cursor: default; }
+
+  /* RESULTS */
+  .result-head { text-align: center; margin-bottom: 24px; }
+  .result-head .eyebrow {
+    font-size: 11px; font-weight: 700; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--primary);
+    margin-bottom: 8px;
+  }
+  .result-head .big-score {
+    font-family: 'Sora', sans-serif;
+    font-size: 46px; font-weight: 800;
+    letter-spacing: -1px;
+  }
+  .result-head .big-score span { color: var(--ink-dim); font-size: 22px; font-weight: 600; }
+
+  .meter-row {
+    display: flex; align-items: center; gap: 10px;
+    margin: 18px 0 26px;
+  }
+  .meter-track {
+    flex: 1; height: 8px; border-radius: 999px;
+    background: var(--border); overflow: hidden;
+  }
+  .meter-fill { height: 100%; background: var(--primary); border-radius: 999px; }
+  .meter-pct { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: var(--ink-dim); min-width: 42px; text-align: right; }
+
+  .divider { border-top: 1px solid var(--border); margin: 24px 0; }
+
+  .hidden { display: none; }
+
+  footer {
+    text-align: center;
+    margin-top: 18px;
+    font-size: 12px;
+    color: var(--ink-dim);
+  }
+  footer a { color: var(--ink-dim); }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="brand">
+    <div class="mark">
+      <span class="dot"></span>
+      <h1>Category Clash</h1>
+    </div>
+    <span class="tag">Trivia Challenge</span>
+  </div>
+
+  <div class="card">
+
+    <!-- SETUP -->
+    <div id="setup">
+      <h2 class="title">Configure your round</h2>
+      <p class="subtitle">10 questions, timed. Choose a category and difficulty to begin.</p>
+
+      <div class="field">
+        <label>Category</label>
+        <div class="chip-row" id="categoryChips">
+          <button class="chip active" data-cat="9">General</button>
+          <button class="chip" data-cat="18">Technology</button>
+          <button class="chip" data-cat="11">Film</button>
+          <button class="chip" data-cat="17">Science</button>
+          <button class="chip" data-cat="21">Sports</button>
+          <button class="chip" data-cat="23">History</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Difficulty</label>
+        <div class="chip-row" id="difficultyChips">
+          <button class="chip active" data-diff="easy">Easy</button>
+          <button class="chip" data-diff="medium">Medium</button>
+          <button class="chip" data-diff="hard">Hard</button>
+        </div>
+      </div>
+      <button class="btn" id="startBtn">Start Round</button>
+    </div>
+
+    <!-- QUIZ -->
+    <div id="quiz" class="hidden">
+      <div class="quiz-head">
+        <div class="meta">Question <strong id="qCounter">1</strong> of 10 &nbsp;·&nbsp; Score <strong id="scoreLive">0</strong></div>
+        <div class="timer-ring">
+          <svg width="44" height="44" viewBox="0 0 44 44">
+            <circle class="bg" cx="22" cy="22" r="18"></circle>
+            <circle class="fg" id="ringFg" cx="22" cy="22" r="18"></circle>
+          </svg>
+          <div class="num" id="ringNum">15</div>
+        </div>
+      </div>
+      <div class="question" id="questionText">Loading question...</div>
+      <div class="answers" id="answersWrap"></div>
+    </div>
+
+    <!-- RESULT -->
+    <div id="result" class="hidden">
+      <div class="result-head">
+        <div class="eyebrow" id="rankText">Solid Effort</div>
+        <div class="big-score"><span id="finalScoreNum">0</span><span> / 10</span></div>
+      </div>
+      <div class="meter-row">
+        <div class="meter-track"><div class="meter-fill" id="meterFill" style="width:0%"></div></div>
+        <div class="meter-pct" id="meterPct">0%</div>
+      </div>
+      <div class="divider"></div>
+      <button class="btn" id="retryBtn">Play Again</button>
+    </div>
+
+    <!-- LOADING / ERROR -->
+    <div id="statusMsg" class="hidden" style="text-align:center; color: var(--ink-dim); font-size: 14px; padding: 40px 0;"></div>
+
+  </div>
+
+  <footer>Questions sourced from the Open Trivia Database</footer>
+</div>
+
+<script>
+  const setupEl = document.getElementById('setup');
+  const quizEl = document.getElementById('quiz');
+  const resultEl = document.getElementById('result');
+  const statusEl = document.getElementById('statusMsg');
+
+  let selectedCategory = "9";
+  let selectedDifficulty = "easy";
+  let questions = [];
+  let currentIndex = 0;
+  let score = 0;
+  let timerInterval = null;
+  let timeLeft = 15;
+  const QUESTION_TIME = 15;
+  const RING_RADIUS = 18;
+  const RING_CIRC = 2 * Math.PI * RING_RADIUS;
+
+  const ringFg = document.getElementById('ringFg');
+  ringFg.style.strokeDasharray = `${RING_CIRC}`;
+  ringFg.style.strokeDashoffset = `0`;
+
+  document.getElementById('categoryChips').addEventListener('click', (e) => {
+    if (!e.target.classList.contains('chip')) return;
+    document.querySelectorAll('#categoryChips .chip').forEach(c => c.classList.remove('active'));
+    e.target.classList.add('active');
+    selectedCategory = e.target.dataset.cat;
+  });
+
+  document.getElementById('difficultyChips').addEventListener('click', (e) => {
+    if (!e.target.classList.contains('chip')) return;
+    document.querySelectorAll('#difficultyChips .chip').forEach(c => c.classList.remove('active'));
+    e.target.classList.add('active');
+    selectedDifficulty = e.target.dataset.diff;
+  });
+
+  document.getElementById('startBtn').addEventListener('click', startGame);
+  document.getElementById('retryBtn').addEventListener('click', () => {
+    resultEl.classList.add('hidden');
+    setupEl.classList.remove('hidden');
+  });
+
+  function decodeHTML(str) {
+    const el = document.createElement('textarea');
+    el.innerHTML = str;
+    return el.value;
+  }
+
+  function shuffle(arr) {
+    return arr.map(v => [Math.random(), v]).sort((a,b) => a[0]-b[0]).map(v => v[1]);
+  }
+
+  async function startGame() {
+    setupEl.classList.add('hidden');
+    statusEl.classList.remove('hidden');
+    statusEl.textContent = "Fetching questions…";
+
+    score = 0;
+    currentIndex = 0;
+
+    try {
+      const url = `https://opentdb.com/api.php?amount=10&category=${selectedCategory}&difficulty=${selectedDifficulty}&type=multiple`;
+      const res = await fetch(url);
+      const data = await res.json();
+
+      if (!data.results || data.results.length === 0) {
+        statusEl.textContent = "No questions available for that combination — try a different category or difficulty.";
+        setTimeout(() => {
+          statusEl.classList.add('hidden');
+          setupEl.classList.remove('hidden');
+        }, 2200);
+        return;
+      }
+
+      questions = data.results.map(q => ({
+        question: decodeHTML(q.question),
+        correct: decodeHTML(q.correct_answer),
+        answers: shuffle([...q.incorrect_answers.map(decodeHTML), decodeHTML(q.correct_answer)])
+      }));
+
+      statusEl.classList.add('hidden');
+      quizEl.classList.remove('hidden');
+      showQuestion();
+    } catch (err) {
+      statusEl.textContent = "Could not reach the trivia server. Check your connection and try again.";
+    }
+  }
+
+  function showQuestion() {
+    clearInterval(timerInterval);
+    timeLeft = QUESTION_TIME;
+
+    const q = questions[currentIndex];
+    document.getElementById('qCounter').textContent = currentIndex + 1;
+    document.getElementById('scoreLive').textContent = score;
+    document.getElementById('questionText').textContent = q.question;
+
+    const wrap = document.getElementById('answersWrap');
+    wrap.innerHTML = '';
+    const letters = ['A', 'B', 'C', 'D'];
+    q.answers.forEach((ans, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'answer';
+      btn.innerHTML = `<span class="letter">${letters[i]}</span><span>${ans}</span>`;
+      btn.addEventListener('click', () => selectAnswer(btn, ans, q.correct));
+      wrap.appendChild(btn);
+    });
+
+    ringFg.style.stroke = 'var(--primary)';
+    updateRing(1);
+
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      updateRing(timeLeft / QUESTION_TIME);
+      document.getElementById('ringNum').textContent = timeLeft;
+      if (timeLeft <= 5) ringFg.style.stroke = 'var(--danger)';
+      if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        selectAnswer(null, null, q.correct);
+      }
+    }, 1000);
+
+    document.getElementById('ringNum').textContent = timeLeft;
+  }
+
+  function updateRing(fraction) {
+    const offset = RING_CIRC * (1 - fraction);
+    ringFg.style.transition = 'stroke-dashoffset 1s linear, stroke 0.3s ease';
+    ringFg.style.strokeDashoffset = offset;
+  }
+
+  function selectAnswer(btnEl, chosen, correct) {
+    clearInterval(timerInterval);
+    const buttons = document.querySelectorAll('.answer');
+    buttons.forEach(b => {
+      b.disabled = true;
+      const label = b.querySelector('span:last-child').textContent;
+      if (label === correct) b.classList.add('correct');
+      else if (b === btnEl) b.classList.add('wrong');
+    });
+
+    if (chosen === correct) score++;
+
+    setTimeout(() => {
+      currentIndex++;
+      if (currentIndex < questions.length) {
+        showQuestion();
+      } else {
+        finishGame();
+      }
+    }, 900);
+  }
+
+  function finishGame() {
+    quizEl.classList.add('hidden');
+    resultEl.classList.remove('hidden');
+
+    const pct = Math.round((score / questions.length) * 100);
+    document.getElementById('finalScoreNum').textContent = score;
+    document.getElementById('meterPct').textContent = pct + '%';
+    requestAnimationFrame(() => {
+      document.getElementById('meterFill').style.width = pct + '%';
+    });
+
+    const rankEl = document.getElementById('rankText');
+    const frac = score / questions.length;
+    if (frac === 1) rankEl.textContent = "Flawless Round";
+    else if (frac >= 0.7) rankEl.textContent = "Strong Performance";
+    else if (frac >= 0.4) rankEl.textContent = "Solid Effort";
+    else rankEl.textContent = "Room to Improve";
+  }
+</script>
+
+</body>
+</html>
